@@ -220,6 +220,7 @@
   "account": {
     "trigger": "アカウント",
     "profile": "プロフィール",
+    "personal_agent": "パーソナルエージェント",
     "theme": "テーマ",
     "themes": {
       "light": "ライト",

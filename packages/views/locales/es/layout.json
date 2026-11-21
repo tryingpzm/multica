@@ -228,6 +228,7 @@
   "account": {
     "trigger": "Cuenta",
     "profile": "Perfil",
+    "personal_agent": "Agente personal",
     "theme": "Tema",
     "themes": {
       "light": "Claro",

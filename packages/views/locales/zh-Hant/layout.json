@@ -220,6 +220,7 @@
   "account": {
     "trigger": "帳戶",
     "profile": "個人資料",
+    "personal_agent": "個人 Agent",
     "theme": "主題",
     "themes": {
       "light": "淺色",

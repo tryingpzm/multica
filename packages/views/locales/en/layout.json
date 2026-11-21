@@ -228,6 +228,7 @@
   "account": {
     "trigger": "Account",
     "profile": "Profile",
+    "personal_agent": "Personal agent",
     "theme": "Theme",
     "themes": {
       "light": "Light",

@@ -1210,6 +1210,18 @@ export class ApiClient {
     return match ? match.slice(prefix.length) || null : null;
   }
 
+  /**
+   * personal-agent: an authenticated request of the personal agent panel, which reads the status and
+   * error body itself, as dsh-superagent's panel does.
+   */
+  personalAgentFetch(path: string, init: RequestInit): Promise<Response> {
+    return fetch(`${this.baseUrl}${path}`, {
+      ...init,
+      headers: { ...this.authHeaders(), ...((init.headers as Record<string, string>) ?? {}) },
+      credentials: "include",
+    });
+  }
+
   private authHeaders(): Record<string, string> {
     const headers: Record<string, string> = {};
     const token = this.getToken();

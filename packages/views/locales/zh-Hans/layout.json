@@ -220,6 +220,7 @@
   "account": {
     "trigger": "账号",
     "profile": "个人资料",
+    "personal_agent": "个人 Agent",
     "theme": "主题",
     "themes": {
       "light": "浅色",

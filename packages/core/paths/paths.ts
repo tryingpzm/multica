@@ -48,6 +48,8 @@ function workspaceScoped(slug: string) {
     issueDeliverable: (id: string, filename: string) =>
       `${ws}/issues/${encode(id)}/deliverables/${encode(filename)}`,
     projects: () => `${ws}/projects`,
+    // personal-agent: the owner's personal agent panel.
+    personalAgent: () => `${ws}/personal-agent`,
     projectDetail: (id: string) => `${ws}/projects/${encode(id)}`,
     autopilots: () => `${ws}/autopilots`,
     autopilotDetail: (id: string) => `${ws}/autopilots/${encode(id)}`,

@@ -3,6 +3,7 @@
 import {
   ArrowUpRight,
   BookOpen,
+  Bot,
   Download,
   History,
   Keyboard,
@@ -126,6 +127,11 @@ export function AccountMenu() {
           <DropdownMenuItem render={<AppLink href={`${p.settings()}?tab=profile`} />}>
             <User />
             {t(($) => $.account.profile)}
+          </DropdownMenuItem>
+          {/* personal-agent: entry to the personal agent panel. */}
+          <DropdownMenuItem render={<AppLink href={p.personalAgent()} />}>
+            <Bot />
+            {t(($) => $.account.personal_agent)}
           </DropdownMenuItem>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>

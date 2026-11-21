@@ -212,6 +212,7 @@
   "account": {
     "trigger": "Аккаунт",
     "profile": "Профиль",
+    "personal_agent": "Личный агент",
     "theme": "Тема",
     "themes": {
       "light": "Светлая",
