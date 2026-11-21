@@ -3184,6 +3184,10 @@ func (h *Handler) buildClaimedTaskResponse(r *http.Request, task *db.AgentTaskQu
 		if err != nil {
 			return resp, deliveredCommentIDs, issueSnapshot, agentSkillCount, builtinSkillCount, h.rejectClaimSkillLoad(task, err)
 		}
+		if skill, ok := h.personalAgentTicketSkill(r.Context(), task.IssueID); ok { // personal-agent: a ticket run gets the ticket skill.
+			_, refs := service.BuildAgentSkillBundles([]service.AgentSkillData{skill})
+			skillRefs = append(skillRefs, refs...)
+		}
 		agentSkillCount = len(skillRefs)
 		resp.Agent.SkillRefs = skillRefs
 	} else {
@@ -3193,6 +3197,9 @@ func (h *Handler) buildClaimedTaskResponse(r *http.Request, task *db.AgentTaskQu
 		}
 		agentSkillCount = len(skills)
 		builtinSkills := h.TaskService.BuiltinSkills(agent.SystemKey.String, legacySkillRedirects)
+		if skill, ok := h.personalAgentTicketSkill(r.Context(), task.IssueID); ok { // personal-agent: a ticket run gets the ticket skill.
+			builtinSkills = append(builtinSkills, skill)
+		}
 		builtinSkillCount = len(builtinSkills)
 		skills = append(skills, builtinSkills...)
 		resp.Agent.Skills = skills
@@ -4698,6 +4705,11 @@ func (h *Handler) ResolveTaskSkillBundles(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	// personal-agent: the claim gave a run on a ticket's issue the ticket skill.
+	if skill, ok := h.personalAgentTicketSkill(r.Context(), task.IssueID); ok {
+		bundles, _ := service.BuildAgentSkillBundles([]service.AgentSkillData{skill})
+		allowed[service.AgentSkillBundleKey(bundles[0].Source, bundles[0].ID)] = bundles[0]
+	}
 	resolved := make([]service.AgentSkillData, 0, len(req.Skills))
 	for _, ref := range req.Skills {
 		bundle, ok := allowed[service.AgentSkillBundleKey(ref.Source, ref.ID)]

@@ -956,6 +956,11 @@ func NewRouterWithOptions(pool *pgxpool.Pool, hub *realtime.Hub, bus *events.Bus
 		slog.Info("dingtalk integration disabled (MULTICA_DINGTALK_SECRET_KEY not set)")
 	}
 
+	// personal-agent: Multica comments and inbox items are offered to every enabled personal agent.
+	personalAgents := newPersonalAgentHost(pool, h, bus)
+	registerPersonalAgentComments(bus, personalAgents)
+	registerPersonalAgentInbox(bus, personalAgents)
+
 	// WeCom smart-bot integration ("智能机器人" / aibot). Per-installation
 	// WebSocket long connection to wss://openws.work.weixin.qq.com; the
 	// Supervisor drives one connection per active wecom installation, gated
@@ -2201,6 +2206,7 @@ func NewRouterWithOptions(pool *pgxpool.Pool, hub *realtime.Hub, bus *events.Bus
 
 			// Assignee frequency
 			r.Get("/api/assignee-frequency", h.GetAssigneeFrequency)
+			r.Mount("/api/personal-agent/panel", personalAgentPanel(h)) // personal-agent: the owner's panel.
 
 			// Local search index sync for Web/Desktop (MUL-7754). Human clients
 			// only: agents search through /api/issues/search.
@@ -2756,6 +2762,7 @@ func NewRouterWithOptions(pool *pgxpool.Pool, hub *realtime.Hub, bus *events.Bus
 			// an agent can only read its own conversation. `history` is the channel
 			// overview (top-level messages + thread metadata); `thread` reads one
 			// thread (?id for a specific one, else the thread the session is in).
+			r.Post("/api/personal-agent/ticket/{action}", personalAgentTicket(h)) // personal-agent: ticket commands of a Router or Worker run.
 			r.Get("/api/chat/history", h.GetChatChannelHistory)
 			r.Get("/api/chat/thread", h.GetChatThread)
 			// Agent-facing chat wakeups: like history, scoped to the calling

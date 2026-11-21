@@ -1487,6 +1487,11 @@ func (h *Handler) DeleteWorkspace(w http.ResponseWriter, r *http.Request) {
 			},
 		},
 		{
+			// personal-agent: an owner's agent and every pa_* row keyed by it.
+			name: "delete personal agents",
+			run:  func() error { return deleteWorkspacePersonalAgents(ctx, tx, requester.WorkspaceID) },
+		},
+		{
 			name: "delete leaf data",
 			run:  func() error { return qtx.DeleteWorkspaceLeafData(ctx, requester.WorkspaceID) },
 		},

@@ -182,6 +182,25 @@ var workspaceDeletionManifest = map[string]workspaceDeleteAction{
 	"workspace":                          workspaceDelete,
 	"workspace_invitation":               workspaceDelete,
 	"workspace_share_link":               workspaceDelete,
+	// personal-agent: deleted by deleteWorkspacePersonalAgents.
+	"pa_allowed":        workspaceDelete,
+	"pa_annotation":     workspaceDelete,
+	"pa_assignment":     workspaceDelete,
+	"pa_decision":       workspaceDelete,
+	"pa_effect":         workspaceDelete,
+	"pa_eval":           workspaceDelete,
+	"pa_follow":         workspaceDelete,
+	"pa_outbox":         workspaceDelete,
+	"pa_plan":           workspaceDelete,
+	"pa_report":         workspaceDelete,
+	"pa_source_scope":   workspaceDelete,
+	"pa_subscription":   workspaceDelete,
+	"pa_thread":         workspaceDelete,
+	"pa_ticket":         workspaceDelete,
+	"pa_trigger":        workspaceDelete,
+	"pa_trigger_thread": workspaceDelete,
+	"pa_watchdog":       workspaceDelete,
+	"personal_agent":    workspaceDelete,
 }
 
 func TestWorkspaceDeletionManifestCoversPublicSchema(t *testing.T) {

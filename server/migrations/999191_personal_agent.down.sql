@@ -1,0 +1,14 @@
+DROP TABLE IF EXISTS pa_annotation;
+DROP TABLE IF EXISTS pa_outbox;
+DROP TABLE IF EXISTS pa_report;
+DROP TABLE IF EXISTS pa_assignment;
+DROP TABLE IF EXISTS pa_subscription;
+DROP TABLE IF EXISTS pa_ticket;
+DROP TABLE IF EXISTS pa_decision;
+DROP TABLE IF EXISTS pa_eval;
+DROP TABLE IF EXISTS pa_thread;
+DROP TABLE IF EXISTS pa_trigger_thread;
+DROP TABLE IF EXISTS pa_trigger;
+DROP TABLE IF EXISTS pa_allowed;
+DROP TABLE IF EXISTS pa_source_scope;
+DROP TABLE IF EXISTS personal_agent;
