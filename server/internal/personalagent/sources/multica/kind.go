@@ -44,10 +44,11 @@ func MentionsMember(content, userID string) bool {
 	return userID != "" && strings.Contains(content, "mention://member/"+userID+")")
 }
 
-// Trigger converts a comment into a Trigger for the agent of owner; it returns nil for the owner's own comments and
-// system comments.
+// Trigger converts a comment into a Trigger for the agent of owner; it returns nil for system comments.
+// The owner's own comments are kept: they become explicit candidates through the allowed list, so the
+// Router decides whether the message is actionable instead of the source discarding it.
 func Trigger(c Comment, owner string) *core.Trigger {
-	if c.AuthorType == "system" || (c.AuthorType == "member" && c.AuthorID == owner) {
+	if c.AuthorType == "system" {
 		return nil
 	}
 	meta := map[string]any{"issueId": c.IssueID, "commentId": c.CommentID, "authorType": c.AuthorType, "mentioned": false}
@@ -120,7 +121,9 @@ func Kind(p Ports) sources.Kind {
 		Health: []string{Source},
 		Scope: func(map[string]any, sources.Config) core.ScopeResult {
 			row := "issues"
-			return core.ScopeResult{Listened: true, Row: &row}
+			// Observed: every comment on an issue is offered to the agent, not only the ones that
+			// @-mention the owner. The Router decides what is actionable; the source does not pre-filter.
+			return core.ScopeResult{Listened: true, Observed: true, Row: &row}
 		},
 		Channel: &sources.Channel{
 			Send: func(ctx context.Context, m core.OutboundMessage) (string, error) {

@@ -78,17 +78,24 @@ func TestReadsAnIssueAsItsAuthorTimeTitleStateAndDescription(t *testing.T) {
 	equal(t, r.Body, map[string]any{"identifier": "MUL-9", "title": "Fix the margin", "status": "todo"})
 }
 
-func TestACommentMentioningTheOwnerIsAddressedAndTheOwnersOwnIsNoTrigger(t *testing.T) {
+func TestACommentMentioningTheOwnerIsAddressedAndTheOwnersOwnIsATrigger(t *testing.T) {
 	owner := "87ac841f-6a6e-42bd-8183-ec5db10d9334"
 	c := multica.Comment{IssueID: "i1", CommentID: "c1", AuthorType: "member", AuthorID: "u2", Content: "[@alex](mention://member/" + owner + ") 看下", At: time.Unix(0, 0)}
 	tr := multica.Trigger(c, owner)
 	equal(t, []any{tr.ID, tr.Threads[0].ID, tr.Addressed, tr.Human}, []any{"multica:i1:c1", "i1", "mention", true})
 	c.Content = "无关"
 	equal(t, multica.Trigger(c, owner).Addressed, "")
+	// The owner's own comment is a Trigger: the allowed list makes it an explicit candidate and the
+	// Router decides whether it is actionable, so the source must not drop it.
 	c.AuthorID = owner
-	if multica.Trigger(c, owner) != nil {
-		t.Fatal("the owner's own comment became a Trigger")
+	own := multica.Trigger(c, owner)
+	if own == nil {
+		t.Fatal("the owner's own comment was dropped")
 	}
+	equal(t, own.Human, true)
 	c.AuthorType, c.AuthorID = "agent", "a1"
 	equal(t, multica.Trigger(c, owner).Human, false)
+	if multica.Trigger(multica.Comment{IssueID: "i1", CommentID: "c2", AuthorType: "system", At: time.Unix(0, 0)}, owner) != nil {
+		t.Fatal("a system comment became a Trigger")
+	}
 }

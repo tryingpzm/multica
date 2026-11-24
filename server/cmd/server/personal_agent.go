@@ -6,6 +6,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"time"
 
@@ -91,10 +92,28 @@ func registerPersonalAgentComments(bus *events.Bus, h *host.Host) {
 	bus.Subscribe(protocol.EventCommentCreated, func(e events.Event) {
 		payload, ok := e.Payload.(map[string]any)
 		if !ok {
+			slog.Warn("personal agent: comment payload not a map", "type", fmt.Sprintf("%T", e.Payload))
 			return
 		}
-		c, ok := payload["comment"].(handler.CommentResponse)
-		if !ok || c.ID == "" || c.IssueID == "" {
+		c, isStruct := payload["comment"].(handler.CommentResponse)
+		if !isStruct {
+			// The service layer (agent replies) publishes the comment as a plain map, the
+			// handler layer as CommentResponse. Read both through JSON.
+			raw, isMap := payload["comment"].(map[string]any)
+			if !isMap {
+				slog.Warn("personal agent: comment assert failed", "type", fmt.Sprintf("%T", payload["comment"]))
+				return
+			}
+			data, err := json.Marshal(raw)
+			if err != nil {
+				return
+			}
+			if err := json.Unmarshal(data, &c); err != nil {
+				slog.Warn("personal agent: comment map not decodable", "error", err)
+				return
+			}
+		}
+		if c.ID == "" || c.IssueID == "" {
 			return
 		}
 		at, _ := time.Parse(time.RFC3339, c.CreatedAt)
@@ -103,11 +122,15 @@ func registerPersonalAgentComments(bus *events.Bus, h *host.Host) {
 		if c.ParentID != nil {
 			comment.ParentID = *c.ParentID
 		}
+		slog.Info("personal agent: comment received", "id", c.ID, "authorType", c.AuthorType, "authorID", c.AuthorID, "issueID", c.IssueID)
 		go func() {
 			ctx, cancel := context.WithTimeout(context.Background(), personalAgentTimeout)
 			defer cancel()
-			if _, err := h.Comment(ctx, comment); err != nil {
+			taken, err := h.Comment(ctx, comment)
+			if err != nil {
 				slog.Warn("personal agent: comment not offered", "error", err)
+			} else {
+				slog.Info("personal agent: comment offered", "taken", taken)
 			}
 		}()
 	})
